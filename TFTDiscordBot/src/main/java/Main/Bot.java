@@ -13,7 +13,7 @@ public class Bot {
 	//public static String info = "";
 	
 	public static void main(String args[]) throws LoginException, InterruptedException {
-		JDABuilder jda = JDABuilder.createDefault("OTAwNzc0NTUzNDA2NTY2NDAw.GJHl-f.DTn7Xs6TUXnDthWYTjF4SaxCcD-egGeBLH-e9A");
+		JDABuilder jda = JDABuilder.createDefault("TokenKey");
 		
 		jda.enableIntents(GatewayIntent.MESSAGE_CONTENT);
 		jda.setActivity(Activity.watching("!help"));
