@@ -5,7 +5,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -22,7 +22,7 @@ public class TFT extends ListenerAdapter{
 	public void onMessageReceived(MessageReceivedEvent cmd) {
 		String prefix = "#";
 		String[] message = cmd.getMessage().getContentRaw().split(" ");
-		
+		//HELP COMMAND
 		if(message[0].equalsIgnoreCase(prefix + "help") && message.length == 1) {
 			if(!cmd.getMember().getUser().isBot()) {
 				EmbedBuilder embed = new EmbedBuilder();
@@ -35,7 +35,7 @@ public class TFT extends ListenerAdapter{
 				cmd.getChannel().sendMessageEmbeds(embed.build()).queue();
 			}
 		}
-		
+		//CHONCC COMMAND
 		else if(message[0].equalsIgnoreCase(prefix + "choncc") && message.length == 1) {
 			if(!cmd.getMember().getUser().isBot()) {
 				EmbedBuilder chonccEmbed = new EmbedBuilder();
@@ -56,13 +56,13 @@ public class TFT extends ListenerAdapter{
 				cmd.getChannel().sendMessageEmbeds(chonccEmbed.build()).queue();
 			}
 		}
-		
+		//USER COMMAND (Invalid Input)
 		else if(message[0].equalsIgnoreCase(prefix + "user") && message.length == 1) {
 			if(!cmd.getMember().getUser().isBot()) {
-				cmd.getChannel().sendMessage("Invalid Input: Please type !user [Name]").queue();
+				cmd.getChannel().sendMessage("Invalid Input: Please type #user [Name]").queue();
 			}
 		}
-		
+		//USER COMMAND (Valid Input)
 		else if(message[0].equalsIgnoreCase(prefix + "user") && message.length > 1) {
 			EmbedBuilder userEmbed = new EmbedBuilder();
 			String name = "";
@@ -76,7 +76,7 @@ public class TFT extends ListenerAdapter{
 				
 				String summonerID = "";
 				try {
-					URL url = new URL("Private Riot API KEY" + name + "Private Riot API KEY");
+					URL url = new URL("Private Riot API Key" + name + "Private Riot API Key");
 						
 					HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 					connection.setRequestMethod("GET");
@@ -102,7 +102,7 @@ public class TFT extends ListenerAdapter{
 					e.printStackTrace();
 				}
 				try {
-					URL url = new URL("Private Riot API KEY" + summonerID + "Private Riot API KEY");
+					URL url = new URL("Private Riot API Key" + summonerID + "Private Riot API Key");
 						
 					HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 					connection.setRequestMethod("GET");
@@ -132,40 +132,31 @@ public class TFT extends ListenerAdapter{
 								String tier = (String) dataObj.get("tier");
 								String rank = (String) dataObj.get("rank");
 								long LP = (long) dataObj.get("leaguePoints");
-								double top4 = ((double)(long) dataObj.get("wins") / ((double)(long)dataObj.get("wins") + (double)(long)dataObj.get("losses")))*100;
+								long gamesPlayed = (long) dataObj.get("wins") + (long) dataObj.get("losses");
+								double top4 = ((double)(long) dataObj.get("wins") / ((double)(long)dataObj.get("wins") + (double)(long)dataObj.get("losses"))) * 100;
 								top4 = Math.round(top4);
 									
 								userEmbed.setTitle(summonerName + "'s TFT Stats");
 								userEmbed.addField("User", summonerName, true);
 								userEmbed.addField("Rank", tier + " " + rank + " " + LP + "LP", true);
 								userEmbed.addField("Top4 %", top4 + "%", true);
-								if(tier.equals("IRON")) {
-									userEmbed.setImage("https://static.wikia.nocookie.net/leagueoflegends/images/f/fe/Season_2022_-_Iron.png/revision/latest/scale-to-width-down/250?cb=20220105213520");
+								userEmbed.addField("Total Games Played", gamesPlayed + " Games", true);
+								HashMap<String, String> rankImg = new HashMap<String, String>();
+								rankImg.put("IRON", "https://static.wikia.nocookie.net/leagueoflegends/images/f/fe/Season_2022_-_Iron.png/revision/latest/scale-to-width-down/250?cb=20220105213520");
+								rankImg.put("BRONZE", "https://static.wikia.nocookie.net/leagueoflegends/images/e/e9/Season_2022_-_Bronze.png/revision/latest/scale-to-width-down/250?cb=20220105214224");
+								rankImg.put("SILVER", "https://static.wikia.nocookie.net/leagueoflegends/images/4/44/Season_2022_-_Silver.png/revision/latest/scale-to-width-down/250?cb=20220105214225");
+								rankImg.put("GOLD", "https://static.wikia.nocookie.net/leagueoflegends/images/8/8d/Season_2022_-_Gold.png/revision/latest/scale-to-width-down/250?cb=20220105214225");
+								rankImg.put("PLATINUM", "https://static.wikia.nocookie.net/leagueoflegends/images/3/3b/Season_2022_-_Platinum.png/revision/latest/scale-to-width-down/250?cb=20220105214225");
+								rankImg.put("DIAMOND", "https://static.wikia.nocookie.net/leagueoflegends/images/e/ee/Season_2022_-_Diamond.png/revision/latest/scale-to-width-down/250?cb=20220105214226");
+								rankImg.put("MASTER", "https://static.wikia.nocookie.net/leagueoflegends/images/e/eb/Season_2022_-_Master.png/revision/latest/scale-to-width-down/250?cb=20220105214311");
+								rankImg.put("GRANDMASTER", "https://static.wikia.nocookie.net/leagueoflegends/images/f/fc/Season_2022_-_Grandmaster.png/revision/latest/scale-to-width-down/250?cb=20220105214312");
+								rankImg.put("CHALLENGER", "https://static.wikia.nocookie.net/leagueoflegends/images/0/02/Season_2022_-_Challenger.png/revision/latest/scale-to-width-down/250?cb=20220105214312");
+								for(String key : rankImg.keySet()) {
+									if(tier.equals(key)) {
+										userEmbed.setImage(rankImg.get(key));
+									}
 								}
-								else if(tier.equals("BRONZE")) {
-									userEmbed.setImage("https://static.wikia.nocookie.net/leagueoflegends/images/e/e9/Season_2022_-_Bronze.png/revision/latest/scale-to-width-down/250?cb=20220105214224");
-								}
-								else if(tier.equals("SILVER")) {
-									userEmbed.setImage("https://static.wikia.nocookie.net/leagueoflegends/images/4/44/Season_2022_-_Silver.png/revision/latest/scale-to-width-down/250?cb=20220105214225");
-								}
-								else if(tier.equals("GOLD")) {
-									userEmbed.setImage("https://static.wikia.nocookie.net/leagueoflegends/images/8/8d/Season_2022_-_Gold.png/revision/latest/scale-to-width-down/250?cb=20220105214225");
-								}
-								else if(tier.equals("PLATINUM")) {
-									userEmbed.setImage("https://static.wikia.nocookie.net/leagueoflegends/images/3/3b/Season_2022_-_Platinum.png/revision/latest/scale-to-width-down/250?cb=20220105214225");
-								}
-								else if(tier.equals("DIAMOND")) {
-									userEmbed.setImage("https://static.wikia.nocookie.net/leagueoflegends/images/e/ee/Season_2022_-_Diamond.png/revision/latest/scale-to-width-down/250?cb=20220105214226");
-								}
-								else if(tier.equals("MASTER")) {
-									userEmbed.setImage("https://static.wikia.nocookie.net/leagueoflegends/images/e/eb/Season_2022_-_Master.png/revision/latest/scale-to-width-down/250?cb=20220105214311");
-								}
-								else if(tier.equals("GRANDMASTER")) {
-									userEmbed.setImage("https://static.wikia.nocookie.net/leagueoflegends/images/f/fc/Season_2022_-_Grandmaster.png/revision/latest/scale-to-width-down/250?cb=20220105214312");
-								}
-								else if(tier.equals("CHALLENGER")) {
-									userEmbed.setImage("https://static.wikia.nocookie.net/leagueoflegends/images/0/02/Season_2022_-_Challenger.png/revision/latest/scale-to-width-down/250?cb=20220105214312");
-								}
+			
 							}
 						}
 						
@@ -177,7 +168,7 @@ public class TFT extends ListenerAdapter{
 				cmd.getChannel().sendMessageEmbeds(userEmbed.build()).queue();
 			}
 		}
-		
+		//LEADERBOARD COMMAND
 		else if(message[0].equalsIgnoreCase(prefix + "leaderboard") && message.length == 1) {
 			EmbedBuilder leaderboardEmbed = new EmbedBuilder();
 			leaderboardEmbed.setTitle("TFT Top 10 Leaderbaord");
@@ -188,7 +179,7 @@ public class TFT extends ListenerAdapter{
 					
 				String info = "";
 				try {
-					URL url = new URL("Private Riot API KEY");
+					URL url = new URL("Private Riot API Key");
 						
 					HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 					connection.setRequestMethod("GET");
@@ -209,7 +200,7 @@ public class TFT extends ListenerAdapter{
 						JSONObject dataObj = (JSONObject) parse.parse(String.valueOf(infoString));
 						JSONArray players = (JSONArray) dataObj.get("entries");
 						JSONArray sortedByLP = new JSONArray();
-						List<JSONObject> list = new ArrayList<JSONObject>();
+						ArrayList<JSONObject> list = new ArrayList<JSONObject>();
 					    for (int i = 0; i < players.size(); i++) {
 					    	list.add((JSONObject)players.get(i));
 					    }
@@ -218,7 +209,7 @@ public class TFT extends ListenerAdapter{
 					        public int compare(JSONObject a, JSONObject b) {
 					            long valA = 0;
 					            long valB = 0;
-
+					            
 					            try {
 					                valA = (long) a.get("leaguePoints");
 					                valB = (long) b.get("leaguePoints");
@@ -227,7 +218,7 @@ public class TFT extends ListenerAdapter{
 					            	e.printStackTrace();
 					            }
 					           
-					            return (int)-(valA - valB);
+					            return (int)-(valA - valB); //sort by greatest to least
 					        }
 						});
 						for (int i = 0; i < players.size(); i++) {
